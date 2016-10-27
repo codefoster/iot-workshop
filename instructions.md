@@ -1,15 +1,21 @@
-move typescript global install to the section where we use it
-remove the iothub-explorer instructions since i factored those out
+check case of all headers to be consistent
+insert images
 
 # Instructions
 
 ## Overview
-{ purpose, strategy, reasons, etc. }
+Internet of Things (IoT) projects are made up of...
+- material design (wood, plastic, metal)
+- electronics
+- software
+- cloud services
+The purpose of this workshop is to give you some intentional and practical experience with the latter two - some software and some cloud service. The skills you'll learn in this exercise will apply to a huge variety of IoT projects such as environmental sensors, robots, home automation, data collection, and more.
+
+For this workshop, we're going to program our RP3 to take a picture, call a service to get a list of _tags_ representing the things it sees in the picture (whoa, that's cool!), and then send those tags to our IoT Hub. From there, we'll take a look at the myriad of things we might want to do with that data.
 
 ## Prerequisites
 * an IDE
-* Node v6
-* TypeScript
+* Node v6+
 * ability to `scp` (add git bin path or use bash on Windows)
 
 ## Setup
@@ -17,56 +23,67 @@ Unless you have a good reason to choose otherwise, we recommend you [install Vis
 
 If you haven't already, you need to get Node v6 installed on your _host machine_. The easiest way is to go to [nodejs.org](http://nodejs.org) and hit the big green button.
 
-You also need the TypeScript module installed globally. At your command prompt type `npm install -g typescript`.
-
 Finally, you need the ability to copy files to your device using the `scp` command. Type `scp` at your command prompt to see if you have it. If you don't, the easiest way is to install Git for Windows and be sure to change one of the default options. On the wizard screen titled _Adjusting your PATH environment_ choose the third option - _Run Git and included Unix tools from the Windows Command Prompt_. If you've already got Git and didn't choose this option, then just modify your system PATH variable and add the path to your Git usr/bin folder. Mine's at `C:\program files\git\usr\bin`. 
 
-## Taking inventory
+## Taking Inventory
 Here's what you should have in your kit...
 
 * Raspberry Pi 3
 * Raspberry Pi camera module
 * SD card
-* Network cable
-* Power cable
+* Electronics
+    * Breadboard
+    * Wires
+    * Push button
+    * LED
+    * 330 &ohm; resistor
+    * 10 k&ohm; resistor
 
 The Raspberry Pi 3 (RP3) is obviously the brains of the operation here. It's essentially a tiny computer with controllable pins. We've equipped these ones with a Raspberry Pi camera module too. Of course, you could just plug a webcam in to one of the USB ports, but the camera module uses the CSI port on the board and is faster and has drivers built in to the device.
 
 The RP3 doesn't have any built in storage, but uses an SD card slot. We have Raspbian - Raspberry Pi's custom distribution of Linux - installed along with Node.js. This makes each of these devices a very capable machine.
 
-The RP3 is powered with a standard micro-USB port and can talk with built-in wifi to the network. We have an ethernet cable here for you too just for getting started.
+The RP3 is powered with a standard micro-USB port. We don't have micro-USB cables provided, so we're hoping you have your own.
+
+For network connectivity, the RP3 has wifi built right in. This should already be set up for you.
+
+## Building the Circuit
+We have a pretty simple circuit here. I'm hoping that if you are familiar with electronic circuits, you'll race through it, and if you're new you'll learn a bit about them and not be intimidated.
+
+
 
 ## Installing Raspbian
 Installing an operating system on an IoT device is not hard, but it does take a bit of time, so *these devices are all done for you*.
 
 If you were going to do it yourself, here would be how you'd get started with that.
 
-Your first choice would be which operating system.
+We're going to be using Linux for this workshop, but you should know that *Windows 10 IoT Core* is an option too. It's a generally easy and well-curated platform that's capable of a lot of code reuse between apps on the IoT device and apps running on other Windows platforms. If you want to install Windows 10 IoT Core, go to [windowsondevices.com](http://windowsondevices.com) to learn how.
 
-Use *Windows 10 IoT Core* if you want a generally easy and well-curated platform that's capable of a lot of code reuse between apps on the IoT device and apps running on other Windows platforms. If you want to install Windows 10 IoT Core, go to [windowsondevices.com](http://windowsondevices.com) to learn how.
-
-The alternative is *Linux*. Although it's possible to run various distributions on a RP3, there's not reason not to run Raspbian. You can choose the full version or you can go with the _Lite_ edition. The full version of Raspbian gives you the GUI desktop and a lot of apps, services, and drivers. The Lite version is best for a simple command line instance of Raspbian without all the cruft. For either one, go to [Raspberry Pi's download page](https://www.raspberrypi.org/downloads/raspbian/).
+Like I said though, we're going to be using *Linux* for this. Although it's possible to run various distributions on a RP3, Raspbian works great. You can choose the full version or you can go with the _Lite_ edition. The full version of Raspbian gives you the GUI desktop and a lot of apps, services, and drivers. The Lite version is best for a simple command line instance of Raspbian without all the cruft. For either one, go to [Raspberry Pi's download page](https://www.raspberrypi.org/downloads/raspbian/). The devices we're using today are using Raspbian Lite.
 
 ## Installing Node
 Like the operating system, *Node has already been installed for you*.
 
 If you're following these instructions on your own device though, you'll want to know how to get started with that, so let's go.
 
-There are a variety of ways to install Node on a Linux device. A Raspberry Pi is a bit of a special condition because it's an ARM processor and many of the versions of Node.js were never built for ARM. The more current versions all support it fine, though, so you'll be in good shape.
+There are a variety of ways to install Node on a Linux device. A Raspberry Pi is a bit of a special condition, because it's an ARM processor and many of the versions of Node.js were never built for ARM. The more current versions all support it fine, though, so you'll be in good shape.
 
-I'll mention the other ways I know of to install Node and then tell you my favorite.
+Another consideration is which _version_ of Node.js you need. We're going to be using v4.4.7, but that's only because there's one silly dependency deep down in our project that doesn't play will with newer versions. I'll mention later how you can even install multiple versions and quickly switch between them if you'd like.
+
+So, I'll mention the other ways I know of to install Node and then tell you my favorite.
 
 * You can set your apt-get registries correctly, update apt-get, and then do a `sudo apt-get install nodejs nodejs-legacy`. The awkward thing there is that in Ubuntu's package store Node.js is called `nodejs`... not `node`. That's why the `nodejs-legacy` package is required. It gives you the ability to type `node` on the command line and get what you expect.
 * You can install NVM (Node Version Manager) and then use it to install one or more versions of Node.js and easily and quickly switch between them. This method burned me on a Raspberry Pi once though because it left an old version of Node which was still being referenced by the device's GPIO pins. I wasted a lot of time on that problem. Details [here](http://codefoster.com/pi-oldnode) in case you care.
 * Finally, you can simply wget the bits you know you need for your architecture, put them in the right place, and set your links. Like this...
 
     ```
-    wget http://nodejs.org/dist/v6.9.1/node-v6.9.1-linux-armv7l.tar.xz
-    tar -xf node-v6.9.1-linux-armv7l.tar.xz
-    sudo mv node-v6.9.1-linux-armv7l /usr/local/node/v6.9.1
+    wget http://nodejs.org/dist/v4.4.7/node-v4.4.7-linux-armv7l.tar.xz
+    tar -xf node-v4.4.7-linux-armv7l.tar.xz
+    sudo mkdir /usr/local/node
+    sudo mv node-v4.4.7-linux-armv7l /usr/local/node/v4.4.7
     cd /usr/local/bin
-    sudo ln -s /usr/local/node/v6.9.1/bin/node node
-    sudo ln -s /usr/local/node/v6.9.1/bin/npm npm
+    sudo ln -sf /usr/local/node/v4.4.7/bin/node node
+    sudo ln -sf /usr/local/node/v4.4.7/bin/npm npm
     node -v
     npm -v
     ```
@@ -79,11 +96,10 @@ I'll mention the other ways I know of to install Node and then tell you my favor
     
     And the `ln` commands set up your links for both node and npm.
 
-## The project idea
-For this workshop, we're going to program our RP3 to take a picture, call a service to get a list of _tags_ representing the things it sees in the picture, and then send those tags to our IoT Hub. From there, we'll take a look at the myriad of things we might want to do with that data.
+    By the way, you can download multiple versions of node and put them all in the `/usr/local/node` folder side by side and then just run the `ln` commands to change your pointers to the version you want at any given time. 
 
-## Getting set up with Cognitive Services
-Microsoft Cognitive Services is great because it's very powerful and yet very easy to use.
+## Getting Set Up with Cognitive Services
+Microsoft Cognitive Services is great because it's very powerful and very easy to use. That's a good combination.
 
 Cognitive Services is essentially a whole bunch of very complicated machine learning happening for you through a very easy to call API.
 
@@ -113,7 +129,7 @@ And that's it!
 ## Registering a Device
 We have a hub, but there has to be an explicit registration for every device that checks in to it. That's so that unauthorized code is unable to act like one of our devices and send spoofed messages.
 
-Let's use the `iothub-explorer` utility to add a device.
+Let's use the `iothub-explorer` utility to add a device. It's oh so easy.
 
 First install it...
 
@@ -123,24 +139,33 @@ npm install -g iothub-explorer
 
 Now go to your Azure Portal and get your `iothubowner` shared access policy connection string.
 
-Now log in to IoT Hub Explorer using...
+{ image }
+
+Now log in to IoT Hub Explorer using that connection string like this...
 
 ```
 iothub-explorer login '<connection string>'
 ```
 
-And finally, you can register a device using...
+And finally, you can register a device...
 
 ```
 iothub-explorer create '<device id>'
 ```
 
 ## Writing the Device Code
-Now we need to write some code to send to our RP3. This code needs to...
+Now we need to write some code to send to our RP3. First we need to set up our project, and then we'll write the code by following these steps...
 
-1. take a picture
-1. cog the picture
-1. send the results to IoT Hub
+1. Connecting to the RP3's GPIO system
+1. Connecting to Our IoT Hub
+1. Talking to GPIO
+1. Taking a Picture
+1. Analyzing the Image with Cognitive Services
+1. Sending the Results to IoT Hub
+
+Different IoT devices are capable of running different kinds of code. Lower level devices force you to write a very constrained version of C. Some run C# or Python or JavaScript. The latter choices are nice because you can work with the same kind of code on your host machine as on your device. 
+
+Theoretically it would be possible to even run the same code on both, except that devices tend to have a number of hardware interfaces (the GPIO pins for instance) that our host machines don't have.  
 
 We're going to use TypeScript for this workshop because...
 
@@ -148,30 +173,149 @@ We're going to use TypeScript for this workshop because...
 - it's easy
 - it gets us in the habit of writing ES6 code
 
-We'll write the code on our host machine and then copy it to the device. IoT devices don't take specific code, so we should be able to run the same code on our host machine as on our device. Devices often have hardware that our host machine doesn't have (the Raspberry Pi camera module in this case), so we'll have to send our code to the device to test that.
+We'll write the code on our host machine and then copy it to the device.
 
-We need to start with getting our project setup...
+Before I start walking you through each of the blocks of code, let me just show you all the code at once. I know that tends to help me understand the breadth of what I'm about to tackle. Here it is...
 
-- make yourself a new folder wherever you want on your machine
-- on your command line go to that folder and run `npm init -y` (that will create a package.json file for you)
+```js
+// index.ts
+
+import * as five from 'johnny-five';
+import * as raspi from 'raspi-io';
+import * as Camera from 'camerapi';
+import * as oxford from 'project-oxford';
+import * as fs from 'fs';
+import * as device from 'azure-iot-device';
+import * as deviceAmqp from 'azure-iot-device-amqp';
+
+let cogClient = new oxford.Client('d7889254b9244ec1ba54e8cf154ff359');
+let connectionString = 'HostName=iot-workshop-hub.azure-devices.net;DeviceId=device1;SharedAccessKey=zyislRKCFj5k916xvNRyB0JPihQpad/56tzTMZMWpdk=';
+let hubClient = deviceAmqp.clientFromConnectionString(connectionString);
+
+//establishing connection to gpio
+log('establishing connection to gpio...');
+let board = new five.Board({ io: new raspi() });
+board.on('ready', () => {
+    let led = new five.Led('GPIO26');
+    let button = new five.Button('GPIO20');
+    led.stop().off();
+
+    //open connection to iot hub
+    log('connecting to iot hub...');
+    hubClient.open(err => {
+        if (err)
+            log(err.message)
+        else {
+            log('READY');
+            led.stop().off();
+
+            let cam = new Camera();
+            cam.baseFolder('.');
+            button.on('press', () => {
+                led.blink(500);
+                log('taking a picture...');
+                cam.takePicture('picture.png', (file, error) => {
+                    if (error) log(error);
+                    else {
+                        //analyzing image
+                        log('analyzing image...');
+                        cogClient.vision.analyzeImage({ path: 'picture.png', Tags: true })
+                            .then(result => {
+                                fs.unlinkSync('picture.png'); //delete the picture
+
+                                //sending message to iot hub
+                                log('sending message to iot hub...');
+                                let message = new device.Message(JSON.stringify({ deviceId: 'device1', tags: ['foo', 'baz', 'bar'] }));
+                                hubClient.sendEvent(message, (err, res) => {
+                                    if (err) log(err.message);
+                                    else {
+                                        log(`Sent ${JSON.stringify(result.tags)} to your IoT Hub`);
+                                        log('READY');
+                                    }
+                                    led.stop().off();
+                                });
+                            });
+                    }
+                });
+            })
+        }
+    })
+})
+
+
+function log(msg: string) {
+    console.log(msg);
+}
+```
+
+There you have it. You could just copy and paste all of that and you'd be done, but that would be cheating. You're here to learn. So let's break it down and paste in one functional unit at a time.
+
+### Setting Up the Project
+Let's start by getting our project setup...
+
+- make yourself a new folder wherever you want on your machine called `iot-workshop`
+- in that folder create another folder called `device`
+- on your command line go to that `device` folder and run `npm init -y` (that will create a package.json file for you)
 - now create a `tsconfig.json` file in the project and paste in the contents from [here](http://codefoster.com/tsconfig)
-- finally, create a file called index.ts and that's where we'll put our code
+- finally, create a file called `index.ts` and that's where we'll put our code
 
 { talk about creating the package.json, tsconfig.json, and index.ts }
 
-### Connecting to our IoT Hub
-Go to your IDE and edit the `index.ts` file and let's start by wiring up IoT Hub. We need a couple of imports...
+### Step 1. Connecting to the RP3's GPIO system
+First, let's get on speaking terms with the GPIO pins on our RP3.
 
+Every IoT device implements its IO pins differently, but in most cases there are libraries already raised up to the language you want to write in. For the Raspberry Pi, check out my [article](http://codefoster.com/pi-gpio) to see specifically how it works. 
+
+What we want is a high level library that takes away all of the ceremony for us and lets us be expressive about what we're trying to do. That's where Johnny Five comes in.
+
+Johnny Five is a JavaScript library for working with devices. It is very popular and supports a ton of devices and hardware sensors. Furthermore, any code you write in Johnny Five is easy to port to another device type. 
+
+We first need to use `npm` to install a couple of dependencies for our project.
+
+Go to your command prompt, make sure you're in the `device` folder, and run this...
+
+```
+npm install johnny-five raspi-io --save
+```
+
+That's going to take considerable time. There's a lot going on in the raspi-io library.
+
+Now, go to your IDE and edit the `index.ts` file and let's start by wiring up IoT Hub. We need a couple of imports...
+
+``` js
+import * as five from 'johnny-five';
+import * as raspi from 'raspi-io';
+```
+
+And below that add the code for setting up your device...
+
+``` js
+//establishing connection to gpio
+log('establishing connection to gpio...');
+let board = new five.Board({ io: new raspi() });
+board.on('ready', () => {
+    let led = new five.Led('GPIO26');
+    let button = new five.Button('GPIO20');
+    led.stop().off();
+
+    ...
+
+})
+```
+
+### Step 2. Connecting to Our IoT Hub
+To connect to the IoT Hub, we need to install and them import a couple more packages. So, at the command line do...
+
+```
+npm install azure-iot-device azure-iot-device-amqp --save
+```
+
+And then add this to the top of our `index.ts` file...
 ``` js
 import * as device from 'azure-iot-device';
 import * as deviceAmqp from 'azure-iot-device-amqp';
 ```
 
-We need to actually install these modules too, so do this at your command line...
-
-```
-npm install azure-iot-device azure-iot-device-amqp --save
-```
 
 The first is a generic module for Azure IoT device code, and the second is specific to whatever IoT protocol we choose. We're choosing to use AMQP here.
 
@@ -205,7 +349,9 @@ hubClient.open(err => {
 
 And if the connection doesn't open, an error will be reported. The rest of our code should go there in the happy path.
 
-### Taking a Picture
+### Step 3. Talking to GPIO
+
+### Step 4. Taking a Picture
 If you're on the command line of the Raspberry Pi, you use the `raspicam` utility to take a photo or video. If you're writing an application in Node.js, however, you use a module to wrap that call to `raspicam`. The module I chose is called [`camerapi`](http://npmjs.com/package/camerapi).
 
 Import the `camerapi` module using an ES6 `import` statement. It's good convention to always put your imports at the top of your code file...
@@ -233,7 +379,7 @@ That was pretty easy. When the program is run, after a connection to the IoT Hub
 
 Let's move on now to sending that image to Microsoft Cognitive Services to see what's in it.
 
-### Analyzing the Image with Cognitive Services
+### Step 5. Analyzing the Image with Cognitive Services
 Up at the top of your file add another import to bring in the [`project-oxford`](http://npmjs.com/package/project-oxford) module. _Project Oxford_ was the code name for Microsoft Cognitive Services and is a really good Node.js SDK. You also need an import for the `fs` core node module since we'll use that to read a file.
 
 ``` js
@@ -271,7 +417,7 @@ Here we're taking the result as is, but there's a good chance you would want to 
 
 Next we need to get that result up to an IoT Hub so we can do all kinds of cloud magic to it.
 
-### Sending Data to IoT Hub
+### Step 6. Sending the Results to IoT Hub
 
 And finally, we want to send a message to the IoT Hub every time an image is successfully analyzed. Add the following to the happy path...
 
@@ -290,11 +436,14 @@ This will create an IoT Hub message, send it, and handle some error cases for us
 You're code complete now! You can check out [my whole file](https://github.com/codefoster/iot-workshop/blob/master/device/index.ts) to make sure you didn't miss anything. Now we just need to get your beautiful code down to your Raspberry Pi!
 
 ## Transpiling our TypeScript
+We're writing this code using TypeScript. Surely you noticed that our file extensions are `.ts`, and perhaps you also noticed that our code contains modern ES6 syntax. Modern versions of Node.js are certainly capable of handling ES6, but they don't know what to do with `.ts` files. We need to _transpile_ these into `.js` files.
+
 This sounds complicated, but far from it. Visual Studio Code is inherently capable of doing this.
 
-Just hit `ctrl + shift + b` to issue the Build command to Visual Studio Code. Your first time running it, Code will ask you to configure your task runner. Go ahead and hit `Configure Task Runner` and then choose `TypeScript - Watch Mode`.
+First, you need to install the `typescript` npm package. At your command prompt type `npm install -g typescript`. That installs the TypeScript tooling (compiler and more) globally, so you can do things like type `tsc` anywhere and turn `.ts` files into `.js` files.
 
-Watch mode means that Code will silently watch in the background for any .ts files to change and will automatically transpile those to .js for you, so you only need to hit `ctrl + shift + b` once per Code session.
+Once TypeScript is installed, go back to VS Code and hit `ctrl + shift + b` (build). Your first time running the `build` command, Code will ask you to configure your task runner. Go ahead and hit `Configure Task Runner` and then choose `TypeScript - Watch Mode`. 
+Watch mode means that Code will silently watch in the background for any `.ts` files to change and will automatically transpile those to `.js` for you, so you only need to hit `ctrl + shift + b` once per Code session.
 
 ## Deploying to the Device
 There are many ways to deploy application code to an IoT device, but there's nothing quite as raw as simply copying the files directly over the network.
@@ -308,25 +457,27 @@ First, let's create a folder on the device to hold our project files. At your co
 ```
 ssh <username>@<device name>.local 'mkdir device'
 ```
+Calling `ssh` with the username@host as well as a command (i.e. 'mkdir device') issues that command on the remote device. It's a pretty handy way to fire off a command on a remote machine without the trouble of connecting, commanding, and then disconnecting.
 
-Now this one to copy these two files to the device...
+Now run this one to copy these two files to the device...
 ```
 scp index.js package.json <username>@<device name>.local:~/device
 ```
 
-The files are out there are ready to run. I think the easiest way to run them is to open a second console window and `ssh` in directly to the device. Use...
+The files are out there and ready to run. I think the easiest way to run them is to open a second console window and `ssh` in directly to the device. Use...
 
 ```
 ssh <username>@<device name>.local
 ```
+Note that this command is just the `ssh` and the `username@host` so it doesn't fire a command, but rather just starts a remote session.
 
-After your first code deployment, you'll need to restore dependencies, you can do that using (you should be `ssh`'ed to your device now)...
+After your first code deployment, you'll need to restore dependencies. You can do that (once you're `ssh`'ed to the device) by using...
 
 ```
 npm install
 ```
 
-And now you can run your application using...
+And now (still `ssh`'ed to the device) you can run your application using...
 
 ```
 node .
@@ -334,5 +485,69 @@ node .
 
 The `.` means "this folder". Node is smart enough to look for an `index.js` file in the current folder and run that.
 
+If all went as planned, you should be taking pictures, cogging them, and sending them to IoT Hub.
+
+You might want to leave this `ssh` console up, because so far this program just takes a single picture when it's run and then the process exits. To take another picture, just fire `node .` again. We may very well want to do something fancier like program this to happen on an interval until we kill the process or maybe even wire a button up to the RP3 to take a picture when we press it.
+
+One more note here. I hooked some timing up to this code and discovered that it takes a full 6s to take the picture. I'm not sure why it takes that long. The entire process takes close to 10s on my machine, where the vast majority of the rest of the time is spent sending the image to the cloud and analyzing it. Sending a message to IoT Hub takes very little time. The message is small and the AMQP protocol is a very efficient one.
+
+That's great and all, but perhaps we want to see what messages are landing in our hub. For that we would write a simple service to monitor hub messages. We can write and run this service on our host machine. It doesn't have to be running in Azure or on the device.
+
 ## Writing the Hub Listener Code
+We'll write one more Node project, connect it to our IoT Hub, and simply report to the console whenever we see messages appear in the hub.
+
+Follow these steps on your host machine...
+- in the `iot-workshop` folder that you created earlier, create another folder called `hublistener`.
+- in that `hublistener` folder on your command line run `npm init -y`. That creates the `package.json` file.
+- run `npm install azure-event-hubs --save`
+- create an `index.ts` file
+- create a `tsconfig.json` file (use the content from [codefoster.com/tsconfig](http://codefoster.com/tsconfig))
+
+Now edit that `index.ts` file (to open the project in code, just type `code .`)
+
+I'll just give you the entire file contents at once this time and then explain it...
+
+``` js
+import * as eh from 'azure-event-hubs'
+
+let connectionString = '<connection string>';
+var hubClient = eh.Client.fromConnectionString(connectionString);
+
+hubClient.open()
+    .then(hubClient.getPartitionIds.bind(hubClient))
+    .then(pids => 
+        pids.map(pid => 
+            hubClient.createReceiver('$Default', pid, { 'startAfterTime': Date.now() })
+                .then(receiver => {
+                    console.log('Created partition receiver: ' + pid)
+                    receiver.on('errorReceived', err => console.log(err.message));
+                    receiver.on('message', m => console.log(JSON.stringify(m.body)));
+                })
+        )
+    )
+    .catch(err => console.log(err.message));
+```
+
+That first line imports the `azure-event-hubs` package. I haven't mentioned this yet, but IoT Hub is implemented with an Azure Event Hub, and every IoT Hub has an Event Hub endpoint. That means that an IoT Hub can _act_ like an Event Hub. We're using the `azure-event-hub` package here because we only want to _read_ from hub and are not actually going to be sending any cloud-to-device (C2D) messages.
+
+We start with the connection string. This is the _IoT Hub_ connection string (as opposed to the device connection string), and we discover by navigating to our IoT Hub in our Azure portal and looking at the "Shared access policies" section. We'll choose the `service` policy, and then copy the primary connection string.
+
+Once we've created the `hubClient` we call `open()` and _then_ (this uses the promise pattern) we get the partition IDs (we may have configured our hub to use any number of partitions between 2 and 32 or even more), and _then_ we create a receiver for each partition, and then we tie up some event handlers for that receiver including what to do when it sees a message. In that case, we simply log it to the console. 
+
+We can run this (on our host machine) using `node .` at the command line in the `hublistener` folder. You'll see the messages that it's connecting and creating partition receivers, and then if you go send a message from your device, you should see it in the hublistener. Very cool!
+
+We're successfully sending messages to the cloud, but now what? We're slowly collecting data about everything a camera sees, and now we would likely want to do something in the cloud with that data. Maybe we want to report it with some graphs. Maybe we want to create an alert for any time a certain thing is spotted. Maybe we want to send an email whenever the incident count of a _certain_ object is seen a _certain_ number of times. The possibilities are endless. But regardless, there's a good chance that you want to start with a Stream Analytics job. 
+
+## Create a Stream Analytics job (optional)
+Stream Analytics analyzes data on the move. The best analogy I've heard is that it's like counting red cars on the highway while they drive by as compared to making them pull over into a parking lot to do the counting.
+
+Let's get started.
+
+Go back to your Azure portal to the resource group you created and add another resource...
+
+{ image }
+
+Choose a Stream Analytics job and fill out the new resource form like this...
+
+{ image }
 
