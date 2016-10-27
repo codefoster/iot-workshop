@@ -1,0 +1,27 @@
+Need powerpoint
+    Intro 
+    Installs you need ( on USB ) -- Get this started as we talk
+    We are not using Windows IoT core... Really (Explain Why)
+    Installs we did for you... Talk about Raspian install, mini, Noobs (why not to use)
+    Concepts that need slides
+
+    Slides on Cognitive Services (Couple slides)
+    IOT HUB (  )
+
+    show how to connect over ethernet cable using bonjour
+    ping to get IP Address
+
+    Need to set up Wifi  (and show them how to do it .. add to instructions ) 
+        wpa_cli status
+        wpa_cli 
+        scan
+        scan_results  (shows avalible wifi ssds NOTE:  Cannot use if they use a sign on page)
+        add_network
+
+    Need a circut diagram
+
+    Need slides for:
+    Intro Slide
+    Cognitive Sercies
+    IoT Hub
+

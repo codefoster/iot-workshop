@@ -2,28 +2,27 @@ check case of all headers to be consistent
 insert images
 
 # Instructions
+## Why we are here  
+    Lets create a project that allows us to touch a button, to take a picture analyze what is in the picture and sends
+    that data to the cloud.
+    Cofortable walking away understanding the following
+        1) Installing Raspian (all the different ways)
+        2) Communicating with the Raspberry Pi Headless 
+        3) Understanding the GPIO and how to work with them
+        4) prototying with breadbords (simple schematics at least )
+        5) Communicating with a camera device (raspicam, ffmpeg, etc )
+        6) Using SSH and SCP to work with the Pi
+        7) Getting Familiar with node, and npm
+        8) Having a basis for a cool IoT idea (show them waterrower and Wackcoon) 
+        9) Azure Iot Hub and Cognitive Services
+ All in 65 lines of code.
 
-## Overview
+## What is Iot
 Internet of Things (IoT) projects are made up of...
 - material design (wood, plastic, metal)
 - electronics
 - software
 - cloud services
-The purpose of this workshop is to give you some intentional and practical experience with the latter two - some software and some cloud service. The skills you'll learn in this exercise will apply to a huge variety of IoT projects such as environmental sensors, robots, home automation, data collection, and more.
-
-For this workshop, we're going to program our RP3 to take a picture, call a service to get a list of _tags_ representing the things it sees in the picture (whoa, that's cool!), and then send those tags to our IoT Hub. From there, we'll take a look at the myriad of things we might want to do with that data.
-
-## Prerequisites
-* an IDE
-* Node v6+
-* ability to `scp` (add git bin path or use bash on Windows)
-
-## Setup
-Unless you have a good reason to choose otherwise, we recommend you [install Visual Studio Code](http://code.visualstudio.com) so you can more easily follow along with us. It works on Mac, Linux, and Windows.
-
-If you haven't already, you need to get Node v6 installed on your _host machine_. The easiest way is to go to [nodejs.org](http://nodejs.org) and hit the big green button.
-
-Finally, you need the ability to copy files to your device using the `scp` command. Type `scp` at your command prompt to see if you have it. If you don't, the easiest way is to install Git for Windows and be sure to change one of the default options. On the wizard screen titled _Adjusting your PATH environment_ choose the third option - _Run Git and included Unix tools from the Windows Command Prompt_. If you've already got Git and didn't choose this option, then just modify your system PATH variable and add the path to your Git usr/bin folder. Mine's at `C:\program files\git\usr\bin`. 
 
 ## Taking Inventory
 Here's what you should have in your kit...
@@ -39,6 +38,11 @@ Here's what you should have in your kit...
     * 330 &ohm; resistor
     * 10 k&ohm; resistor
 
+What you need to pick up from up front
+    * USB Cord for powered
+    * Power Brick 
+    * Ethernet Cable ( Dont need a crossover )
+
 The Raspberry Pi 3 (RP3) is obviously the brains of the operation here. It's essentially a tiny computer with controllable pins. We've equipped these ones with a Raspberry Pi camera module too. Of course, you could just plug a webcam in to one of the USB ports, but the camera module uses the CSI port on the board and is faster and has drivers built in to the device.
 
 The RP3 doesn't have any built in storage, but uses an SD card slot. We have Raspbian - Raspberry Pi's custom distribution of Linux - installed along with Node.js. This makes each of these devices a very capable machine.
@@ -48,11 +52,16 @@ The RP3 is powered with a standard micro-USB port. We don't have micro-USB cable
 For network connectivity, the RP3 has wifi built right in. This should already be set up for you.
 
 ## Building the Circuit
-We have a pretty simple circuit here. I'm hoping that if you are familiar with electronic circuits, you'll race through it, and if you're new you'll learn a bit about them and not be intimidated.
+< need a circut diagram>
+
+## Prerequisites (can be found on USB sticks)
+* Visual Studio Code
+* Node v6+
+* Git (for scp - add git bin path or use bash on Windows) to copy files from computer to raspberry pi
+* Bonjour for Windows 
 
 
-
-## Installing Raspbian
+### Installing Raspbian
 Installing an operating system on an IoT device is not hard, but it does take a bit of time, so *these devices are all done for you*.
 
 If you were going to do it yourself, here would be how you'd get started with that.
@@ -61,7 +70,7 @@ We're going to be using Linux for this workshop, but you should know that *Windo
 
 Like I said though, we're going to be using *Linux* for this. Although it's possible to run various distributions on a RP3, Raspbian works great. You can choose the full version or you can go with the _Lite_ edition. The full version of Raspbian gives you the GUI desktop and a lot of apps, services, and drivers. The Lite version is best for a simple command line instance of Raspbian without all the cruft. For either one, go to [Raspberry Pi's download page](https://www.raspberrypi.org/downloads/raspbian/). The devices we're using today are using Raspbian Lite.
 
-## Installing Node
+### Installing Node
 Like the operating system, *Node has already been installed for you*.
 
 If you're following these instructions on your own device though, you'll want to know how to get started with that, so let's go.
@@ -98,20 +107,12 @@ So, I'll mention the other ways I know of to install Node and then tell you my f
 
     By the way, you can download multiple versions of node and put them all in the `/usr/local/node` folder side by side and then just run the `ln` commands to change your pointers to the version you want at any given time. 
 
-## Getting Set Up with Cognitive Services
-Microsoft Cognitive Services is great because it's very powerful and very easy to use. That's a good combination.
+### Setting up WiFi without a monitor
 
-Cognitive Services is essentially a whole bunch of very complicated machine learning happening for you through a very easy to call API.
+## Talk about typescript
 
-With it you can do things like detect what objects are in an image, validate that the person speaking to the computer is who they say they are, turn text into speech or speech into text, perform optical character recognition (OCR), and a ton more.
-
-We're going to play around with the various services so you understand what all is possible, and youc an do the same thing at [microsoft.com/cognitive](http://microsoft.com/cognitive).
-
-While you're on that site, you can click [Get started for free](https://www.microsoft.com/cognitive-services/en-us/sign-up) to get your own API keys for calling these services. 
-
-In order to access Cognitive Services without resorting to low-level REST calls, we'll use the [http://npmjs.com/package/project-oxford](project-oxford) node module. It will be a cinch.
-
-## Creating our IoT Hub
+## IoT Hub Discussion and Setup
+### Creating our IoT Hub
 Azure IoT Hub is sort of the center of it all. You can have millions of extremely chatty devices talking to one IoT Hub witihout a problem, and then you can do all sorts of fun things with those messages on the backend.
 
 We'll walk through the creation of an IoT Hub. This step too is very easy, but you will need an Azure subscription. If you don't have one already, go to [azure.com](http://azure.com) and click to start the free trial.
@@ -126,7 +127,7 @@ Next, we'll hit the plus button above the Resources list in our Resource Group (
 
 And that's it!
 
-## Registering a Device
+### Registering a Device
 We have a hub, but there has to be an explicit registration for every device that checks in to it. That's so that unauthorized code is unable to act like one of our devices and send spoofed messages.
 
 Let's use the `iothub-explorer` utility to add a device. It's oh so easy.
@@ -152,6 +153,20 @@ And finally, you can register a device...
 ```
 iothub-explorer create '<device id>'
 ```
+
+## Getting Set Up with Cognitive Services
+Microsoft Cognitive Services is great because it's very powerful and very easy to use. That's a good combination.
+
+Cognitive Services is essentially a whole bunch of very complicated machine learning happening for you through a very easy to call API.
+
+With it you can do things like detect what objects are in an image, validate that the person speaking to the computer is who they say they are, turn text into speech or speech into text, perform optical character recognition (OCR), and a ton more.
+
+We're going to play around with the various services so you understand what all is possible, and youc an do the same thing at [microsoft.com/cognitive](http://microsoft.com/cognitive).
+
+While you're on that site, you can click [Get started for free](https://www.microsoft.com/cognitive-services/en-us/sign-up) to get your own API keys for calling these services. 
+
+In order to access Cognitive Services without resorting to low-level REST calls, we'll use the [http://npmjs.com/package/project-oxford](project-oxford) node module. It will be a cinch.
+
 
 ## Writing the Device Code
 Now we need to write some code to send to our RP3. First we need to set up our project, and then we'll write the code by following these steps...
@@ -538,16 +553,5 @@ We can run this (on our host machine) using `node .` at the command line in the 
 
 We're successfully sending messages to the cloud, but now what? We're slowly collecting data about everything a camera sees, and now we would likely want to do something in the cloud with that data. Maybe we want to report it with some graphs. Maybe we want to create an alert for any time a certain thing is spotted. Maybe we want to send an email whenever the incident count of a _certain_ object is seen a _certain_ number of times. The possibilities are endless. But regardless, there's a good chance that you want to start with a Stream Analytics job. 
 
-## Create a Stream Analytics job (optional)
-Stream Analytics analyzes data on the move. The best analogy I've heard is that it's like counting red cars on the highway while they drive by as compared to making them pull over into a parking lot to do the counting.
 
-Let's get started.
-
-Go back to your Azure portal to the resource group you created and add another resource...
-
-{ image }
-
-Choose a Stream Analytics job and fill out the new resource form like this...
-
-{ image }
 

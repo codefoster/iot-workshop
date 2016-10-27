@@ -1,0 +1,56 @@
+1) Intros
+2) Why we are here  
+    What is the purpose of the workshop.
+    Lets create a project that allows us to touch a button, to take a picture analyze what is in the picture and sends
+    that data to the cloud.
+    Cofortable walking away understanding the following
+        1) Installing Raspian (all the different ways)
+        2) Communicating with the Raspberry Pi Headless 
+        3) Understanding the GPIO and how to work with them
+        4) prototying with breadbords (simple schematics at least )
+        5) Communicating with a camera device (raspicam, ffmpeg, etc )
+        6) Using SSH and SCP to work with the Pi
+        7) Getting Familiar with node, and npm
+        8) Having a basis for a cool IoT idea (show them waterrower and Wackcoon) 
+        9) Azure Iot Hub and Cognitive Services
+        10) All in 65 lines of code.
+   
+What is IoT
+
+Taking Inventory
+
+Start with building the circut .... 
+
+    Talk about all the pieces , resistors, wires, ground, 
+
+Install prereqs and discuss
+    What is node
+    What is what is npm
+    what is bonjour
+    Talk about SCP
+    Talk about SSH
+
+Install Raspian (Discussion Only)
+Install Node    (Discussion Only)
+Setting up WiFi without a monitor
+
+Talk about Typescript
+
+IOT Hub Discussion and setup
+
+Connecting to the RP3's GPIO system
+Connecting to Our IoT Hub
+Talking to GPIO
+Taking a Picture
+Analyzing the Image with Cognitive Services  (Talk and Code )
+1ending the Results to IoT Hub
+
+
+
+
+
+
+
+
+
+          
