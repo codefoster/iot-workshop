@@ -52,7 +52,7 @@ The RP3 is powered with a standard micro-USB port. We don't have micro-USB cable
 For network connectivity, the RP3 has wifi built right in. This should already be set up for you.
 
 ## Building the Circuit
-< need a circut diagram>
+![](circuit-diagram.png)
 
 ## Prerequisites (can be found on USB sticks)
 * Visual Studio Code
