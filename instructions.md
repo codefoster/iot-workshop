@@ -6,15 +6,16 @@ insert images
 Lets create a project that allows us to touch a button, take a picture, analyze what's in the picture, and send that data to the cloud.
 
 By the end of this workshop, you should feel comfortable with...
-    1) Installing Raspian (all the different ways)
-    1) Communicating with the Raspberry Pi Headless 
-    1) Understanding the GPIO and how to work with them
-    1) prototying with breadbords (simple schematics at least )
-    1) Communicating with a camera device (raspicam, ffmpeg, etc )
-    1) Using SSH and SCP to work with the Pi
-    1) Getting Familiar with node, and npm
-    1) Having a basis for a cool IoT idea (show them waterrower and Wackcoon) 
-    1) Azure Iot Hub and Cognitive Services
+
+1. Installing Raspian (all the different ways)
+1. Communicating with the Raspberry Pi Headless 
+1. Understanding the GPIO and how to work with them
+1. prototying with breadbords (simple schematics at least )
+1. Communicating with a camera device (raspicam, ffmpeg, etc )
+1. Using SSH and SCP to work with the Pi
+1. Getting Familiar with node, and npm
+1. Having a basis for a cool IoT idea (show them waterrower and Wackcoon) 
+1. Azure Iot Hub and Cognitive Services
 
 All of this in just 65 lines of code.
 
