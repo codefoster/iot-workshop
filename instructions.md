@@ -28,7 +28,7 @@ Here's what you should have in your kit...
 
 * Raspberry Pi 3
 * Raspberry Pi camera module
-* SD card
+* micro SD card
 * Electronics
     * Breadboard
     * Wires
