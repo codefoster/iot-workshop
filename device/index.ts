@@ -52,6 +52,10 @@ board.on('ready', () => {
                                     }
                                     led.stop().off();
                                 });
+                            })
+                            .catch(err => {
+                                log('error analyzing image... ' + err.message);
+                                led.stop().off();
                             });
                     }
                 });
