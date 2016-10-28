@@ -4,15 +4,15 @@ Lets create a project that allows us to touch a button, take a picture, analyze 
 
 By the end of this workshop, you should feel comfortable with...
 
-1. Installing Raspian (all the different ways)
+1. Installing Raspian
 1. Communicating with the Raspberry Pi Headless 
 1. Understanding the GPIO and how to work with them
-1. prototying with breadbords (simple schematics at least )
-1. Communicating with a camera device (raspicam, ffmpeg, etc )
+1. Prototying with breadbords (simple schematics at least)
+1. Communicating with a camera device (raspicam, ffmpeg, etc.)
 1. Using SSH and SCP to work with the Pi
-1. Getting Familiar with node, and npm
-1. Having a basis for a cool IoT idea (show them waterrower and Wackcoon) 
-1. Azure Iot Hub and Cognitive Services
+1. Getting familiar with node, and npm
+1. Having a basis for a cool IoT idea
+1. Azure IoT Hub and Cognitive Services
 
 All of this in just 65 lines of code.
 
@@ -38,15 +38,15 @@ Here's what you should have in your kit...
     * 10 k&ohm; resistor
 
 What you need to pick up from up front
-    * USB Cord for powered
-    * Power Brick 
-    * Ethernet Cable ( Dont need a crossover )
+* USB Cord for powered
+* Power Brick 
+* Ethernet Cable ( Dont need a crossover )
 
 The Raspberry Pi 3 (RP3) is obviously the brains of the operation here. It's essentially a tiny computer with controllable pins. We've equipped these ones with a Raspberry Pi camera module too. Of course, you could just plug a webcam in to one of the USB ports, but the camera module uses the CSI port on the board and is faster and has drivers built in to the device.
 
 The RP3 doesn't have any built in storage, but uses an SD card slot. We have Raspbian - Raspberry Pi's custom distribution of Linux - installed along with Node.js. This makes each of these devices a very capable machine.
 
-The RP3 is powered with a standard micro-USB port. We don't have micro-USB cables provided, so we're hoping you have your own.
+The RP3 is powered with a standard micro-USB port.
 
 For network connectivity, the RP3 has wifi built right in. This should already be set up for you.
 
@@ -63,11 +63,13 @@ For network connectivity, the RP3 has wifi built right in. This should already b
 ### Installing Raspbian
 Installing an operating system on an IoT device is not hard, but it does take a bit of time, so *these devices are all done for you*.
 
-If you were going to do it yourself, here would be how you'd get started with that.
+If you were going to do it yourself, I'll give you a little help getting started with that.
 
 We're going to be using Linux for this workshop, but you should know that *Windows 10 IoT Core* is an option too. It's a generally easy and well-curated platform that's capable of a lot of code reuse between apps on the IoT device and apps running on other Windows platforms. If you want to install Windows 10 IoT Core, go to [windowsondevices.com](http://windowsondevices.com) to learn how.
 
 Like I said though, we're going to be using *Linux* for this. Although it's possible to run various distributions on a RP3, Raspbian works great. You can choose the full version or you can go with the _Lite_ edition. The full version of Raspbian gives you the GUI desktop and a lot of apps, services, and drivers. The Lite version is best for a simple command line instance of Raspbian without all the cruft. For either one, go to [Raspberry Pi's download page](https://www.raspberrypi.org/downloads/raspbian/). The devices we're using today are using Raspbian Lite.
+
+After you've downloaded an image, follow the [instructions](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) on raspberrypi.org to get it installed on your device.
 
 ### Installing Node
 Like the operating system, *Node has already been installed for you*.
@@ -107,8 +109,7 @@ So, I'll mention the other ways I know of to install Node and then tell you my f
     By the way, you can download multiple versions of node and put them all in the `/usr/local/node` folder side by side and then just run the `ln` commands to change your pointers to the version you want at any given time. 
 
 ### Setting up WiFi without a monitor
-
-## Talk about typescript
+If you don't have a monitor to plug your pi into, there's a good trick for bootstrapping. Just plug your device into your host machine using an ethernet cable, and then (making sure you have Bonjour for Windows installed) just ping your device using `<device name>.local`. When you pull a pi out of its box, its name is `raspberrypi`.
 
 ## IoT Hub Discussion and Setup
 ### Creating our IoT Hub
@@ -568,7 +569,6 @@ Once we've created the `hubClient` we call `open()` and _then_ (this uses the pr
 
 We can run this (on our host machine) using `node .` at the command line in the `hublistener` folder. You'll see the messages that it's connecting and creating partition receivers, and then if you go send a message from your device, you should see it in the hublistener. Very cool!
 
-We're successfully sending messages to the cloud, but now what? We're slowly collecting data about everything a camera sees, and now we would likely want to do something in the cloud with that data. Maybe we want to report it with some graphs. Maybe we want to create an alert for any time a certain thing is spotted. Maybe we want to send an email whenever the incident count of a _certain_ object is seen a _certain_ number of times. The possibilities are endless. But regardless, there's a good chance that you want to start with a Stream Analytics job. 
+We're successfully sending messages to the cloud, but now what? We're slowly collecting data about everything a camera sees, and now we would likely want to do something in the cloud with that data. Maybe we want to report it with some graphs. Maybe we want to create an alert for any time a certain thing is spotted. Maybe we want to send an email whenever the incident count of a _certain_ object is seen a _certain_ number of times.
 
-
-
+> **Oh, the possibilities are endless!**
