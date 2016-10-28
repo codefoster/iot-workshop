@@ -1,6 +1,3 @@
-check case of all headers to be consistent
-insert images
-
 # Instructions
 ## Why we are here  
 Lets create a project that allows us to touch a button, take a picture, analyze what's in the picture, and send that data to the cloud.
