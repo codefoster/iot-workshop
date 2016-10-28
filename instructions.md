@@ -3,21 +3,22 @@ insert images
 
 # Instructions
 ## Why we are here  
-    Lets create a project that allows us to touch a button, to take a picture analyze what is in the picture and sends
-    that data to the cloud.
-    Cofortable walking away understanding the following
-        1) Installing Raspian (all the different ways)
-        2) Communicating with the Raspberry Pi Headless 
-        3) Understanding the GPIO and how to work with them
-        4) prototying with breadbords (simple schematics at least )
-        5) Communicating with a camera device (raspicam, ffmpeg, etc )
-        6) Using SSH and SCP to work with the Pi
-        7) Getting Familiar with node, and npm
-        8) Having a basis for a cool IoT idea (show them waterrower and Wackcoon) 
-        9) Azure Iot Hub and Cognitive Services
- All in 65 lines of code.
+Lets create a project that allows us to touch a button, take a picture, analyze what's in the picture, and send that data to the cloud.
 
-## What is Iot
+    By the end of this workshop, you should feel understand...
+        1) Installing Raspian (all the different ways)
+        1) Communicating with the Raspberry Pi Headless 
+        1) Understanding the GPIO and how to work with them
+        1) prototying with breadbords (simple schematics at least )
+        1) Communicating with a camera device (raspicam, ffmpeg, etc )
+        1) Using SSH and SCP to work with the Pi
+        1) Getting Familiar with node, and npm
+        1) Having a basis for a cool IoT idea (show them waterrower and Wackcoon) 
+        1) Azure Iot Hub and Cognitive Services
+
+All of this in just 65 lines of code.
+
+## What is IoT
 Internet of Things (IoT) projects are made up of...
 - material design (wood, plastic, metal)
 - electronics
