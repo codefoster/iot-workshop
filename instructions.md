@@ -1,6 +1,12 @@
+> Please be aware, that this document is in work. there's likely enough here for you to complete it, but more is in the works. Stay tuned.
+
+# Open issues
+The following need to be added or modified in this document before it can be called complete...
+- search this doc for "@@" and resolve
+
 # Instructions
 
-## Why We Are Here
+## Objective
 Let's create a project that allows us to touch a button, take a picture, analyze what's in the picture, and send that data to the cloud.
 
 By the end of this workshop, you should feel comfortable with...
@@ -12,7 +18,6 @@ By the end of this workshop, you should feel comfortable with...
 1. Communicating with a camera device
 1. Using SSH and SCP to deploy to the device
 1. Getting familiar with node and npm
-1. Having a basis for a cool IoT idea
 1. Azure IoT Hub and Cognitive Services
 
 All of this in just 65 lines of code.
@@ -27,15 +32,16 @@ The Internet of Things (IoT) is a hot topic. It's also a rather broad topic. Thi
 We won't do any material design in this project, but we'll plug in some electronics, write some software and consume some cloud services to create a fun, final solution.
 
 ## Taking Inventory
-Here's what you should have in your kit...
+Here's what you'll need in order to complete this tutorial...
 
 * Raspberry Pi 3
 * Raspberry Pi camera module
 * micro SD card
 * Electronics
     * Breadboard
-    * Wires
-    * Push button
+    * 4 M/F jumper wires
+    * 2 M/M jumper wires
+    * Momentary NO (normally open) button
     * LED
     * 330 &ohm; resistor
     * 10 k&ohm; resistor
@@ -51,11 +57,13 @@ The RP3 is powered with a standard micro USB port.
 For network connectivity, the RP3 has wifi built right in. This should already be set up for you.
 
 ## Building the Circuit
+@@ add some text about the circuit diagram, the components, and such
+
 ![](circuit-diagram.png)
 
 ## Prerequisites
 * Visual Studio Code
-* Node v6+
+* Node v4+
 * Git
 * Bonjour for Windows 
 
@@ -64,7 +72,7 @@ Installing an operating system on an IoT device is not hard, but it does take a 
 
 We're going to be using Linux for this workshop, but you should know that *Windows 10 IoT Core* is an option too. Among its strengths, Windows 10 enables of a lot of code reuse between apps on the IoT device and apps running on other Windows platforms. If you want to install Windows 10 IoT Core, go to [windowsondevices.com](http://windowsondevices.com) to learn how.
 
-Like I said though, we're going to be using *Linux* for this. Although it's possible to run various distributions on a RP3, Raspbian works great. You can choose the full version or you can go with the _Lite_ edition. The full version of Raspbian gives you the GUI desktop and a lot of apps, services, and drivers. The Lite version is best for a simple command line instance of Raspbian without all the cruft. For either one, go to [Raspberry Pi's download page](https://www.raspberrypi.org/downloads/raspbian/). The devices we're using today are using Raspbian Lite.
+Like I said though, we're going to be using *Linux*. Although it's possible to run various distributions on a RP3, Raspbian works great. You can choose the full version or you can go with the _Lite_ edition. The full version of Raspbian gives you the GUI desktop and a lot of apps, services, and drivers. The Lite version is best for a simple command line instance of Raspbian without all the cruft. For either one, go to [Raspberry Pi's download page](https://www.raspberrypi.org/downloads/raspbian/). The devices we're using today are using Raspbian Lite.
 
 After you've downloaded an image, follow the [instructions](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) on raspberrypi.org to get it installed on your device.
 
@@ -120,13 +128,7 @@ node -v
 npm -v
 ```
 
-The `wget` line downloads it.
-
-The `tar` line decompresses it.
-
-The `sudo mv` line puts it in the right place.
-
-And the `ln` commands set up your links for both node and npm.
+The `wget` line downloads it, the `tar` line decompresses it, the `sudo mv` line puts it in the right place, and the `ln` commands set up your links for both node and npm.
 
 By the way, you can download multiple versions of node and put them all in the `/usr/local/node` folder side by side and then just run the `ln` commands to change your pointers to the version you want at any given time. 
 
@@ -139,11 +141,11 @@ We'll walk through the creation of an IoT Hub. This step too is very easy, but y
 
 To create our hub, we'll start by creating a Resource Group. A Resource Group is a logical group of resources that often represent a single solution and are likely deployed together, managed together, and deleted together. I called mine `iot-workshop`, but you can call yours whatever you want.
 
-{ image coming soon }
+@@ image
 
 Next, we'll hit the plus button above the Resources list in our Resource Group (RG) and search to find the IoT Hub resource. That will bring us to this short form to fill out.
 
-{ image coming soon }
+@@ image
 
 And that's it!
 
@@ -160,7 +162,7 @@ npm install -g iothub-explorer
 
 Now go to your Azure Portal and get your `iothubowner` shared access policy connection string.
 
-{ image coming soon }
+@@ image
 
 Now log in to IoT Hub Explorer using that connection string like this...
 
@@ -237,8 +239,8 @@ import * as device from 'azure-iot-device';
 import * as deviceAmqp from 'azure-iot-device-amqp';
 
 //INIT
-let cogClient = new oxford.Client('d7889254b9244ec1ba54e8cf154ff359');
-let connectionString = 'HostName=iot-workshop-hub.azure-devices.net;DeviceId=device1;SharedAccessKey=zyislRKCFj5k916xvNRyB0JPihQpad/56tzTMZMWpdk=';
+let cogClient = new oxford.Client('<your API key>');
+let connectionString = '<device connection string>';
 let hubClient = deviceAmqp.clientFromConnectionString(connectionString);
 
 //MAIN CODE
@@ -306,7 +308,7 @@ Some of these dependencies can be installed on the host machine, but not all of 
 So, first let's install the ones we can using...
 
 ```
-npm i johnny-five project-oxford azure-iot-device azure-iot-device-amqp
+npm install johnny-five project-oxford azure-iot-device azure-iot-device-amqp
 ```
 
 Then, to add `raspi-io` and `camerapi` do this... 
@@ -322,207 +324,161 @@ Then, to add `raspi-io` and `camerapi` do this...
 
 A note on why we did this. When we deploy our app out to the device, we'll send this package.json file along as well. It contains information about all of the dependencies needed by the project, and makes it easy to install all dependencies at once.
 
-// ### Step 1. Connecting to the RP3's GPIO system
-// First, let's get on speaking terms with the GPIO pins on our RP3.
+### Step 1. Connecting to the RP3's GPIO system
+First, we have to get on speaking terms with the GPIO pins on our RP3.
 
-// Every IoT device implements its IO pins differently, but in most cases there are libraries already raised up to the language you want to write in. For the Raspberry Pi, check out my [article](http://codefoster.com/pi-gpio) to see specifically how it works. 
+Every IoT device implements its IO pins differently, but in most cases there are libraries already mapped to the language you want to code in. For the Raspberry Pi, check out my [article](http://codefoster.com/pi-gpio) to see specifically how it works. 
 
-// What we want is a high level library that takes away all of the ceremony for us and lets us be expressive about what we're trying to do. That's where Johnny Five comes in.
+What we want is a high level library that takes away all of the ceremony for us and lets us be expressive about what we're trying to do. That's where Johnny Five comes in.
 
-// Johnny Five is a JavaScript library for working with devices. It is very popular and supports a ton of devices and hardware sensors. Furthermore, any code you write in Johnny Five is easy to port to another device type. 
+Johnny Five is a JavaScript library for working with devices. It is very popular and supports a ton of devices and hardware sensors. Furthermore, any code you write in Johnny Five is easy to port to another device type. 
 
-// We first need to use `npm` to install a couple of dependencies for our project.
+Look at that code block `index.ts` and check out the part that looks like this...
 
-// Go to your command prompt, make sure you're in the `device` folder, and run this...
+ ``` js
+//MAIN CODE
+//establishing connection to gpio
+log('establishing connection to gpio...');
+let board = new five.Board({ io: new raspi() });
+board.on('ready', () => {
+    let led = new five.Led('GPIO26');
+    let button = new five.Button('GPIO20');
+    led.stop().off();
+    
+    ...
 
-// ```
-// npm install johnny-five raspi-io --save
-// ```
+})
 
-// That's going to take considerable time. There's a lot going on in the raspi-io library.
+function log(msg: string) {
+    console.log(msg);
+}
+```
 
-// Now, go to your IDE and edit the `index.ts` file and let's start by wiring up IoT Hub. We need a couple of imports...
+### Step 2. Connecting to Our IoT Hub
+To connect to the IoT Hub, we need the `azure-iot-device` and `azure-iot-device-amqp` packages that we installed.
 
-// ``` js
-// //IMPORTS
-// import * as five from 'johnny-five';
-// import * as raspi from 'raspi-io';
-// ```
+`azure-iot-device` is a generic module for Azure IoT device code, and the second is specific to whatever IoT protocol we choose. We're choosing to use AMQP here.
 
-// And below that add the code for setting up your device...
+Then, we drop our connection string in. Note that this is not the "IoT Hub" connection string. This is the "device connection string".
 
-// ``` js
-// //MAIN CODE
-// //establishing connection to gpio
-// log('establishing connection to gpio...');
-// let board = new five.Board({ io: new raspi() });
-// board.on('ready', () => {
-//         let led = new five.Led('GPIO26');
-//     let button = new five.Button('GPIO20');
-//     led.stop().off();
+You can get this by using the IoT Hub Explorer utility again. Just do...
 
-//     //FOLLOWING CODE
+```
+iothub-explorer list --connection-string
+```
 
-// })
+The `--connection-string` argument tells the utility to return the connection string so we can copy it.
 
-// function log(msg: string) {
-//     console.log(msg);
-// }
-// ```
+Then we use that connection string to create our IoT Hub client. Here's the lines I'm referring to...
 
-// ### Step 2. Connecting to Our IoT Hub
-// To connect to the IoT Hub, we need to install and then import a couple more packages. So, at the command line do...
+``` js
+//INIT
+let connectionString = '<device connection string>';
+let hubClient = deviceAmqp.clientFromConnectionString(connectionString);
+```
 
-// ```
-// npm install azure-iot-device azure-iot-device-amqp --save
-// ```
+Next we open a connection to our IoT Hub by adding some code _inside_ the `board.on('ready', ...)` block. That's when the Johnny Five library is done setting up the device and is ready for us to talk to it.
 
-// And then add this to the `//IMPORTS` section of the `index.ts` file...
+Here's the code for connecting to IoT Hub...
 
-// ``` js
-// import * as device from 'azure-iot-device';
-// import * as deviceAmqp from 'azure-iot-device-amqp';
-// ```
+``` js
+//open connection to iot hub
+log('connecting to iot hub...');
+hubClient.open(err => {
+    if (err)
+        log(err.message)
+    else {
 
-// The first is a generic module for Azure IoT device code, and the second is specific to whatever IoT protocol we choose. We're choosing to use AMQP here.
+        ...
 
-// Now we'll drop our connection string in. Note that this is not the "IoT Hub" connection string. This is the "device connection string".
+    }
+});
 
-// You can get this by using the IoT Hub Explorer utility again. Just do...
+```
 
-// ```
-// iothub-explorer list --connection-string
-// ```
+If the connection doesn't open, an error will be reported.
 
-// The `--connection-string` argument tells the utility to return the connection string so we can copy it.
+### Step 3. Taking a Picture
+If you're on the command line of the Raspberry Pi, you use the `raspicam` utility to take a photo or video. We, however, are _not_ on the command line - we're in Node.js. In that case, you use a module to wrap that call to `raspicam`. The module I chose is called [`camerapi`](http://npmjs.com/package/camerapi).
 
-// Then we'll use that connection string to create our IoT Hub client. These lines need to be pasted into your `index.ts` _after_ the `//IMPORT` section but _before_ the "//MAIN CODE" section.
+To take a picture, we instantiate a new camera, set its base folder (where pictures are saved) to the current directory, and then take a picture. Here's the code...
 
-// ``` js
-// //INIT
-// let connectionString = '<device connection string>';
-// let hubClient = deviceAmqp.clientFromConnectionString(connectionString);
-// ```
+``` js
+let cam = new Camera();
+cam.baseFolder('.');
+cam.takePicture('picture.png', (file,error) => {
 
-// Now we can open a connection to our IoT Hub by adding some code _inside_ the `board.on('ready', ...)` block.
+    ...
 
-// Add the code below to the `//FOLLOWING CODE` section...
+});
+```
 
-// ``` js
-// //open connection to iot hub
-// log('connecting to iot hub...');
-// hubClient.open(err => {
-//     if (err)
-//         log(err.message)
-//     else {
+That was pretty easy. When the program is run, _after_ the board is ready and _after_ a connection to the IoT Hub is established, that code will be executed and a single picture will be taken and saved as `picture.png` in the same directory where our code is.
 
-//         //FOLLOWING CODE
+Now let's send that image to Microsoft Cognitive Services to see what's in it.
 
-//     }
-// ```
+### Step 4. Analyzing the Image with Cognitive Services
+"Project Oxford" was the code name for Microsoft Cognitive Services, and the [`project-oxford`](http://npmjs.com/package/project-oxford) module is a really good Node.js SDK for accessing it. We also need the `fs` core node module since we'll use that to read a file.
 
-// If the connection doesn't open, an error will be reported.
+Now it's time to use that Cognitive Services key you got earlier. Put your key into the placeholder on the line that looks like...
 
-// ### Step 3. Taking a Picture
-// If you're on the command line of the Raspberry Pi, you use the `raspicam` utility to take a photo or video. We, however, are _not_ on the command line - we're in Node.js. In that case, you use a module to wrap that call to `raspicam`. The module I chose is called [`camerapi`](http://npmjs.com/package/camerapi).
+```js
+let cogClient = new oxford.Client('<your API key>');
+```
 
-// Import the `camerapi` module using an ES6 `import` statement. It's good convention to always put your imports at the top of your code file...
+Now to actually use the service to analyze an image. Here's the code...
 
-// ``` js
-// import * as Camera from 'camerapi';
-// ```
-// Again, we need to do the actual install, so at your command line do...
+``` js
+cogClient.vision.analyzeImage({ path: 'picture.png', Tags: true })
+    .then(result => {
+        fs.unlinkSync('picture.png'); //delete the picture
+        
+        ...
 
-// ```
-// npm install camerapi --save
-// ```
+    });
+```  
 
-// Now, you instantiate a new camera, set its base folder (where pictures are saved) to the current directory, and then take a picture by pasting this into `//FOLLOWING CODE`...
+That calls the `analyzeImage()` method passing it the name of the picture that we just took. Notice that we couldn't call this before the takePicture callback fired because that picture wouldn't exist yet. We also tell the API that we're interested in the tags by adding `Tags: true`.
 
-// ``` js
-// let cam = new Camera();
-// cam.baseFolder('.');
-// cam.takePicture('picture.png', (file,error) => {
+Instead of using a callback, this SDK uses promises (nice!), so the function we pass to the `.then()` method is what happens after the response comes back from the service.
 
-//     //FOLLOWING CODE
+Here we're taking the result as is, but there's a good chance you would want to do some conditioning on that object here. We also delete the picture so we're ready for the next one.
 
-// });
-// ```
+Next we need to get that result up to an IoT Hub so we can do all kinds of cloud magic to it.
 
-// That was pretty easy. When the program is run, after a connection to the IoT Hub is established (a connection we're not using yet by the way), that code will be executed and a single picture will be taken and saved as `picture.png` in the same directory where our code is.
+### Step 5. Sending the Results to IoT Hub
 
-// Let's move on now to sending that image to Microsoft Cognitive Services to see what's in it.
+And finally, we want to send a message to the IoT Hub every time an image is successfully analyzed...
 
-// ### Step 4. Analyzing the Image with Cognitive Services
-// In the `//IMPORTS` section, add another import to bring in the [`project-oxford`](http://npmjs.com/package/project-oxford) module. _Project Oxford_ was the code name for Microsoft Cognitive Services and is a really good Node.js SDK. You also need an import for the `fs` core node module since we'll use that to read a file.
+``` js
+//sending message to iot hub
+log('sending message to iot hub...');
+let message = new device.Message(JSON.stringify({ deviceId: 'device1', tags: ['foo', 'baz', 'bar'] }));
+hubClient.sendEvent(message, (err, res) => {
+    if (err) log(err.message);
+    else {
+        log(`Sent ${JSON.stringify(result.tags)} to your IoT Hub`);
+        log('READY');
+    }
+    led.stop().off();
+});
+```
+This will create an IoT Hub message, send it, and handle some error cases for us. If there are no errors then it will give us a little message on the console, and whether there's an error or not, we want to stop on the LED and be sure it's in the off state using `led.stop().off()`.
 
-// ``` js
-// import * as oxford from 'project-oxford';
-// import * as fs from 'fs';
-// ```
+That brings us to code completion! You can check out [the file](https://github.com/codefoster/iot-workshop/blob/master/device/index.ts) directly if that helps. Now we just need to get your beautiful code down to your Raspberry Pi!
 
-// And install `project-oxford` from the command line. The `fs` module is built in to node and doesn't need to be installed...
+## Transpiling our TypeScript
+We're writing this code using TypeScript. Surely you noticed that our file extensions are `.ts`, and perhaps you also noticed that our code contains modern ES6 syntax. Modern versions of Node.js are certainly capable of handling ES6, but they don't know what to do with `.ts` files. We need to _transpile_ these into `.js` files.
 
-// ```
-// npm install project-oxford --save
-// ```
+This sounds complicated, but far from it. Visual Studio Code is inherently capable of doing this.
 
-// Now it's time to use that Cognitive Services key you got earlier. Paste this code into the //INIT section and replace the key...
+@@ test to see if the following is actually necessary
 
-// ```js
-// let cogClient = new oxford.Client('<your API key>');
-// ```
+First, you need to install the `typescript` npm package. At your command prompt type `npm install -g typescript`. That installs the TypeScript tooling (compiler and more) globally, so you can do things like type `tsc` anywhere and turn `.ts` files into `.js` files.
 
-// Now to actually use the service to analyze an image. In the `//FOLLOWING CODE` add...
+Once TypeScript is installed, go back to VS Code and hit `ctrl + shift + b` (build). Your first time running the `build` command, Code will ask you to configure your task runner. Go ahead and hit `Configure Task Runner` and then choose `TypeScript - Watch Mode`. 
 
-// ``` js
-// cogClient.vision.analyzeImage({ path: 'picture.png', Tags: true })
-//     .then(result => {
-//         fs.unlinkSync('picture.png'); //delete the picture
-
-//         //FOLLOWING CODE
-
-//     });
-// ```  
-
-// That calls the `analyzeImage()` method passing it the name of the picture that we just took. Notice that we couldn't call this before the takePicture callback fired because that picture wouldn't exist yet. We also tell the API that we're interested in the tags by adding `Tags: true`.
-
-// Instead of using a callback, this SDK uses promises (nice!), so the function we pass to the `.then()` method is what happens after the response comes back from the service.
-
-// Here we're taking the result as is, but there's a good chance you would want to do some conditioning on that object here. We also delete the picture so we're ready for the next one.
-
-// Next we need to get that result up to an IoT Hub so we can do all kinds of cloud magic to it.
-
-// ### Step 5. Sending the Results to IoT Hub
-
-// And finally, we want to send a message to the IoT Hub every time an image is successfully analyzed. Add the following to the happy path...
-
-// ``` js
-// //sending message to iot hub
-// log('sending message to iot hub...');
-// let message = new device.Message(JSON.stringify({ deviceId: 'device1', tags: ['foo', 'baz', 'bar'] }));
-// hubClient.sendEvent(message, (err, res) => {
-//     if (err) log(err.message);
-//     else {
-//         log(`Sent ${JSON.stringify(result.tags)} to your IoT Hub`);
-//         log('READY');
-//     }
-//     led.stop().off();
-// });
-// ```
-// This will create an IoT Hub message, send it, and handle some error cases for us.
-
-// You're code complete now! You can check out [my whole file](https://github.com/codefoster/iot-workshop/blob/master/device/index.ts) to make sure you didn't miss anything. Now we just need to get your beautiful code down to your Raspberry Pi!
-
-// ## Transpiling our TypeScript
-// We're writing this code using TypeScript. Surely you noticed that our file extensions are `.ts`, and perhaps you also noticed that our code contains modern ES6 syntax. Modern versions of Node.js are certainly capable of handling ES6, but they don't know what to do with `.ts` files. We need to _transpile_ these into `.js` files.
-
-// This sounds complicated, but far from it. Visual Studio Code is inherently capable of doing this.
-
-// First, you need to install the `typescript` npm package. At your command prompt type `npm install -g typescript`. That installs the TypeScript tooling (compiler and more) globally, so you can do things like type `tsc` anywhere and turn `.ts` files into `.js` files.
-
-// Once TypeScript is installed, go back to VS Code and hit `ctrl + shift + b` (build). Your first time running the `build` command, Code will ask you to configure your task runner. Go ahead and hit `Configure Task Runner` and then choose `TypeScript - Watch Mode`. 
-// Watch mode means that Code will silently watch in the background for any `.ts` files to change and will automatically transpile those to `.js` for you, so you only need to hit `ctrl + shift + b` once per Code session.
+Watch mode means that Code will silently watch in the background for any `.ts` files to change and will automatically transpile those to `.js` for you, so you only need to hit `ctrl + shift + b` once per Code session.
 
 ## Deploying to the Device
 There are many ways to deploy application code to an IoT device, but there's nothing quite as raw as simply copying the files directly over the network.
@@ -556,6 +512,8 @@ After your first code deployment, you'll need to restore dependencies. You can d
 npm install
 ```
 
+Now it's time to go get some coffee, because that command is going to take considerable time. There's a lot going on in the raspi-io library.
+
 And now (still `ssh`'ed to the device) you can run your application using...
 
 ```
@@ -575,6 +533,8 @@ That's great and all, but perhaps we want to see what messages are landing in ou
 ## Writing the Hub Listener Code
 We'll write one more Node project, connect it to our IoT Hub, and simply report to the console whenever we see messages appear in the hub.
 
+The only real reason for this part is to show you how you would write a custom service that responds to messages as they arrive in the cloud. Actually, there's a decent chance you won't even _need_ a custom service since you can wire up IoT Hub to a number of other Azure services with configuration alone. But just in case.
+
 Follow these steps on your host machine...
 - in the `iot-workshop` folder that you created earlier, create another folder called `hublistener`.
 - in that `hublistener` folder on your command line run `npm init -y`. That creates the `package.json` file.
@@ -582,14 +542,17 @@ Follow these steps on your host machine...
 - create an `index.ts` file
 - create a `tsconfig.json` file (use the content from [codefoster.com/tsconfig](http://codefoster.com/tsconfig))
 
+@@ add instructions and image for fetching the `service` access policy from our hub for use in the placeholder below 
+
 Now edit that `index.ts` file (to open the project in code, just type `code .`)
 
-I'll just give you the entire file contents at once this time and then explain it...
+Here are the file contents...
 
 ``` js
+//index.ts
 import * as eh from 'azure-event-hubs'
 
-let connectionString = '<connection string>';
+let connectionString = '<IoT Hub connection string>';
 var hubClient = eh.Client.fromConnectionString(connectionString);
 
 hubClient.open()
@@ -618,3 +581,5 @@ We can run this (on our host machine) using `node .` at the command line in the 
 We're successfully sending messages to the cloud, but now what? We're slowly collecting data about everything a camera sees, and now we would likely want to do something in the cloud with that data. Maybe we want to report it with some graphs. Maybe we want to create an alert for any time a certain thing is spotted. Maybe we want to send an email whenever the incident count of a _certain_ object is seen a _certain_ number of times.
 
 > **Oh, the possibilities are endless!**
+
+@@ consider adding stream analytics instructions
