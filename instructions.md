@@ -1,9 +1,3 @@
-> Please be aware, that this document is in work. there's likely enough here for you to complete it, but more is in the works. Stay tuned.
-
-# Open issues
-The following need to be added or modified in this document before it can be called complete...
-- search this doc for "@@" and resolve
-
 # Instructions
 
 ## Objective
@@ -57,7 +51,7 @@ The RP3 is powered with a standard micro USB port.
 For network connectivity, the RP3 has wifi built right in. This should already be set up for you.
 
 ## Building the Circuit
-@@ add some text about the circuit diagram, the components, and such
+> Note to self: add some text about the circuit diagram, the components, and such
 
 ![](circuit-diagram.png)
 
@@ -141,11 +135,11 @@ We'll walk through the creation of an IoT Hub. This step too is very easy, but y
 
 To create our hub, we'll start by creating a Resource Group. A Resource Group is a logical group of resources that often represent a single solution and are likely deployed together, managed together, and deleted together. I called mine `iot-workshop`, but you can call yours whatever you want.
 
-@@ image
+> Note to self: add image
 
 Next, we'll hit the plus button above the Resources list in our Resource Group (RG) and search to find the IoT Hub resource. That will bring us to this short form to fill out.
 
-@@ image
+> Note to self: add image
 
 And that's it!
 
@@ -162,7 +156,7 @@ npm install -g iothub-explorer
 
 Now go to your Azure Portal and get your `iothubowner` shared access policy connection string.
 
-@@ image
+> Note to self: add image
 
 Now log in to IoT Hub Explorer using that connection string like this...
 
@@ -472,7 +466,7 @@ We're writing this code using TypeScript. Surely you noticed that our file exten
 
 This sounds complicated, but far from it. Visual Studio Code is inherently capable of doing this.
 
-@@ test to see if the following is actually necessary
+> Note to self: test to see if the following is actually necessary
 
 First, you need to install the `typescript` npm package. At your command prompt type `npm install -g typescript`. That installs the TypeScript tooling (compiler and more) globally, so you can do things like type `tsc` anywhere and turn `.ts` files into `.js` files.
 
