@@ -34,8 +34,6 @@ Install Raspian (Discussion Only)
 Install Node    (Discussion Only)
 Setting up WiFi without a monitor
 
-Talk about Typescript
-
 IOT Hub Discussion and setup
 
 Connecting to the RP3's GPIO system
