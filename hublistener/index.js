@@ -1,6 +1,6 @@
 "use strict";
 const eh = require('azure-event-hubs');
-let connectionString = 'HostName=iot-workshop-hub.azure-devices.net;SharedAccessKeyName=service;SharedAccessKey=RqrUPHRia79Ao86B0a9gMF+G9B6j6DjDSfKw7kAXJ8Q=';
+let connectionString = 'HostName=cfhub.azure-devices.net;SharedAccessKeyName=service;SharedAccessKey=OrBlnCd0JvzPdr5VzSzbryQ2PunvonBcyWrsLobnVHs=';
 var client = eh.Client.fromConnectionString(connectionString);
 client.open()
     .then(client.getPartitionIds.bind(client))
