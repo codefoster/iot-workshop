@@ -70,7 +70,7 @@ The easiest way to direct you in putting this circuit together is to show you a 
 * The direction you put the LED in _does_ matter. The longer leg is on the left.
 * You can test that you have your LED in right by temporarily connecting the positive side (the leg of the resistor on the left that's connected to the LED's longer leg) to the positive (red) bus.
 
-![](circuit-diagram.png)
+![](circuit-diagram-mini.png)
 
 Additionally, there's a Raspberry Pi camera module in your kit. That camera is made especially for the Raspberry Pi. Of course, you could just plug a webcam into one of the 4 USB ports of the device, but the camera with the ribbon cable is plugging in to the camera's CSI bus and that makes it faster.
 
