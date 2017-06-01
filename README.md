@@ -62,9 +62,9 @@ Even basic electronic circuits can be intimidating if you - like many software d
 
 The easiest way to direct you in putting this circuit together is to show you a breadboard diagram. Your kit has all of the components and the right number and type of jumper wires. Just follow the image below and note the following...
 
-* In case you've never used a breadboard, each of the top and bottom rows (with the blue and red lines) are connected internally, so whatever components you plug into one row will be connected with any other components plugged into that row. The columns (with numbers for labels) on the main part of the board are likewise connected internally, but isolated from each other, so whatever components you plug in to a hole on a given column is connected to any other components you plug in to that column.
+* In case you've never used a breadboard, what you have in your kit is a mini-breadboard. These are simpler and smaller than normal breadboards. On these boards, the columns (each with 5 holes) are connected internally, so components you plug in will be connected to each other but isolated from anything plugged in to another column.
 * The 40 pins from the Raspberry Pi input/output header is displayed and the direction of the USB ports is labeled for orientation.
-* The cylinder shaped components with colored lines are resistors. It doesn't matter which direction they go in
+* The cylinder shaped components with colored lines are resistors. It doesn't matter which direction they go
 * The resistors have different values, so do make sure to look at the color bands and use the correct one
 * The button has four legs, because it could actually be used in two circuits simultaneously, but here we're just using it for a single circuit. When you put it in the board, the small latches should be on the _sides_ as opposed to the top and bottom.
 * The direction you put the LED in _does_ matter. The longer leg is on the left.
