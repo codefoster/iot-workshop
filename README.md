@@ -5,21 +5,6 @@ This workshop will walk you through a few common IoT scenarios like basic user i
 
 When it's all finished and working, with the click of a button you'll be able to take a picture, figure out what objects are in the picture, and then record the result in a cloud service.
 
-By the end of this workshop, you should feel comfortable with...
-
-1. Installing Raspian
-1. Communicating with the Raspberry Pi (without a monitor)
-1. Understanding the GPIO
-1. Building a basic circuit on a breadboard
-1. Communicating with the camera
-1. Deploying code to the device
-1. Node.js and npm
-1. Azure Cognitive Services and Azure IoT Hub
-
-All of this in under 70 lines of code!
-
-If you're joining me in person for this event, the amount of time we have together may make it necessary to gloss over some of these categories, but you'll always have these online instructions to pick up the rest of the project at home.
-
 ## What is IoT
 The Internet of Things (IoT) is a hot topic. It's also a rather broad topic, and IoT topics often cover a few disciplines...
 
@@ -57,6 +42,12 @@ For network connectivity, the RP3 has wifi built right in. This should already b
 
 BTW, there's nothing stopping you from doing this same project with a Raspberry Pi 2. It down't have built-in wifi, though, so you'd need a dongle.
 
+You'll also need some software on your host machine. This will get you started...
+* Visual Studio Code
+* Node v4+
+* Git
+* Bonjour for Windows 
+
 ## Building the Circuit
 Even basic electronic circuits can be intimidating if you - like many software devs - haven't worked with them before. The circuit for this project is very simple, and will hopefully give you some confidence.
 
@@ -80,12 +71,6 @@ The camera in this kit is only 5 megapixels (to keep the cost low), but you can 
 
 To plug your camera connect in to your Raspberry Pi device, you use the onboard camera slot (not to be confused with the nearly identical display port!). You pull up on the plastic sleeve, insert the camera's ribbon cable with the blue side facing the USB ports, and then push down on the sleeve to secure it.
 
-## Software Prerequisites
-* Visual Studio Code
-* Node v4+
-* Git
-* Bonjour for Windows 
-
 ### Installing Raspbian
 Installing an operating system on an IoT device is not hard, but it does take a bit of time.
 
@@ -100,19 +85,35 @@ If you have an HDMI monitor, keyboard, and mouse available, you can plug them in
 
 I recommend learning how to access your pi directly over a network connection and a command line, though.
 
-To connect without a monitor, just plug your device into your host machine using an ethernet cable, and then (making sure you have Bonjour for Windows installed) just ping your device using `ping <device name>.local`. When you pull a pi out of its box, its name is `raspberrypi`.
+To connect without a monitor, you take advantage of the fact that Raspbian comes with mDNS enabled. That means that your device is broadcasting its presence from the very first boot. To see it, you need mDNS software. If you're on a Mac, Bonjour is built in. If you're on Windows, I've found a quick install of [Bonjour Print Services](https://support.apple.com/kb/dl999) to be the easiest way. If you're on Linux, you can use [Avahi](https://en.wikipedia.org/wiki/Avahi_%28software%29), but I haven't done that before.
+
+After you're host machine is mDNS enabled, just plug your device into your host machine using an ethernet cable, and then just ping your device using `ping <device name>.local`. When you pull a pi out of its box, its name is `raspberrypi`, so you would do `ping raspberrypi.local`. That's going to give you the IP address of the device. If it's a IPv6 address, you can request a v4 address using `ping raspberrypi.local -4`.
+
+You can either use the newly discovered IP address to connect to your device, or you can continue using its mDNS name.
+
+### Connecting using SSH
+The first thing to do is connect remotely to your device, and SSH is the tool for the job.
+
+You need to have ssh available on your command line. You can simply type `ssh` and then hit enter to see if you do. If you don't, you can use one of these strategies for getting it...
+
+1. **Add the `/usr/bin` folder from your Git installation to your path.** This is the simplest method. Simply go to your machine's environment variables, edit the path, and add the folder. Mine is at `c:\Program Files\Git\usr\bin`. Once you do this (and restart your terminal), you'll have `ssh` and a bunch of other utilities at your fingertips.
+
+1. **Install [PuTTY](https://www.chiark.greenend.org.uk/~sgtatham/putty/) (Windows).** The PuTTY application includes both a visual tool and a command line tool for remoting via SSH.
+
+Once you have `ssh` installed, remoting to your device is as simply as `ssh pi@raspberrypi.local`.
+
 
 ### Configuring WiFi Networks
 When you first set up a device, it doesn't know what your wireless networks are called or what your passwords are. You have to configure that. Once you do, you don't need to rely on the ethernet cable any more. Here's how to configure the networks...
 
 1. Initiate a remote connection to the device using...
     ```
-    ssh pi@raspberrypi@local
+    ssh pi@raspberrypi.local
     ```
 2. When prompted for the password use `raspberry`
 3. Edit the wireless config file using...
     ```
-    sudo nano /etc/wpa_supplicant/wpa_supplicant.config
+    sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
     ```
 4. Add one to many networks to the bottom of the file using the format...
     ```
@@ -121,9 +122,16 @@ When you first set up a device, it doesn't know what your wireless networks are 
         psk="<password>"
     }
     ```
-    If you want, you can add another property to multiple networks called `priority` to determine the order in which networks will be attempted. Higher numbers are tried first.
+    If you want, you can add another property to multiple networks called `priority` to determine the order in which networks will be attempted. Higher numbers are tried first. That looks like this...
+    ```
+    network={
+        ssid="MyNetwork"
+        psk="pa$$w0rd"
+        priority=99
+    }
+    ```
 
-Now remove the ethernet cable and reboot your device with `sudo reboot now`. You can always run `wpa_cli status` to see if you're connected, and you can `ping microsoft.com` to be sure.
+Now remove the ethernet cable and reboot your device with `sudo reboot now`. You can always run `wpa_cli status` to see if you're connected, and you can `ping codefoster.com` to be sure.
 
 ### Configuring the Device
 There are a couple of things you need to do when you first get your device installed and get connected.
@@ -133,67 +141,51 @@ Most of the configuration options are found in a utility called `raspi-config`. 
 ### Installing Node on the Device
 JavaScript via Node.js is just one of the languages you can write on a Raspberry Pi, but if you ask me it's the most exciting one.
 
-There are a variety of ways to install Node on a Raspberry Pi, but the best way in my opinion is to simply `wget` the right bits for the pi's architecture. Like this...
+There are a variety of ways to install Node on a Raspberry Pi, but the best way in my opinion is to use `nvs`. The instructions are at [https://github.com/jasongin/nvs](https://github.com/jasongin/nvs) and provide you 3 simple steps on your Pi...
 
 ```
-wget http://nodejs.org/dist/v4.4.7/node-v4.4.7-linux-armv7l.tar.xz
-tar -xf node-v4.4.7-linux-armv7l.tar.xz
-sudo mkdir /usr/local/node
-sudo mv node-v4.4.7-linux-armv7l /usr/local/node/v4.4.7
-cd /usr/local/bin
-sudo ln -sf /usr/local/node/v4.4.7/bin/node node
-sudo ln -sf /usr/local/node/v4.4.7/bin/npm npm
+export NVS_HOME="$HOME/.nvs"
+git clone https://github.com/jasongin/nvs "$NVS_HOME"
+. "$NVS_HOME/nvs.sh" install
+```
+
+Once that's done, getting the latest version of Node is as easy as...
+
+```
+nvs add latest
+nvs use latest
+```
+
+Now see what version of node and npm you have by doing...
+
+```
 node -v
 npm -v
 ```
 
-The `wget` line downloads it, the `tar` line decompresses it, the `sudo mv` line puts it in the right place, and the `ln` commands set up your links for both node and npm.
-
-By the way, you can download multiple versions of node and put them all in the `/usr/local/node` folder side by side and then just run the `ln` commands to change your pointers to the version you want at any given time. 
-
 ## IoT Hub Discussion and Setup
-Azure IoT Hub is sort of the center of it all. You can have millions of extremely chatty devices talking to one IoT Hub witihout a problem, and then you can do all sorts of fun things with those messages on the backend.
-The IoT Hub service is in the cloud and needs to be set up before we can write code to access it. 
+Azure IoT Hub is sort of the center of it all. You can have millions of extremely chatty devices talking to one IoT Hub without a problem, and then you can do all sorts of fun things with those messages on the backend.
+The IoT Hub service is in the cloud and needs to be created in Azure before we can write code to talk to it. 
 
 ### Creating our IoT Hub
 We'll walk through the creation of an IoT Hub. This step too is very easy, but you will need an Azure subscription. If you don't have one already, go to [azure.com](http://azure.com) and click to start the free trial.
 
 To create our hub, we'll start by creating a Resource Group. A Resource Group is a logical group of resources that often represent a single solution and are likely deployed together, managed together, and deleted together. I called mine `iot-workshop`, but you can call yours whatever you want.
 
-> Note to self: add image
+![hub-create-1](hub-create-1.png)
 
 Next, we'll hit the plus button above the Resources list in our Resource Group (RG) and search to find the IoT Hub resource. That will bring us to this short form to fill out.
 
-> Note to self: add image
+![hub-create-2](hub-create-2.png)
 
 And that's it!
 
 ### Registering a Device
 We have a hub, but there has to be an explicit registration for every device that checks in to it. That's so that unauthorized code is unable to act like one of our devices and send spoofed messages.
 
-Let's use the `iothub-explorer` utility to add a device. It's oh so easy. To be clear, this should be done on your _host machine_.
+The easiest way to register a device is to simply use the Device Explorer in the Azure portal. You simply navigate to your hub, click the Device Explorer on the left, and then click Add.
 
-First install it...
-
-```
-npm install -g iothub-explorer
-```
-
-Now go to your Azure Portal and get your `iothubowner` shared access policy connection string.
-
-> Note to self: add image
-
-Now log in to IoT Hub Explorer using that connection string like this...
-
-```
-iothub-explorer login '<connection string>'
-```
-
-And finally, you can register a device...
-
-```
-iothub-explorer create '<device id>'
-```
+Once you have registered a device, the important bit of information is that device's _connection string_. You'll be pasting that into your code.
 
 ## Cognitive Services
 Microsoft Cognitive Services is also in Azure and needs to be set up before we write the calling code.
@@ -542,8 +534,6 @@ Follow these steps on your host machine...
 - create an `index.ts` file
 - create a `tsconfig.json` file (use the content from [codefoster.com/tsconfig](http://codefoster.com/tsconfig))
 
-@@ add instructions and image for fetching the `service` access policy from our hub for use in the placeholder below 
-
 Now edit that `index.ts` file (to open the project in code, just type `code .`)
 
 Here are the file contents...
@@ -581,5 +571,3 @@ We can run this (on our host machine) using `node .` at the command line in the 
 We're successfully sending messages to the cloud, but now what? We're slowly collecting data about everything a camera sees, and now we would likely want to do something in the cloud with that data. Maybe we want to report it with some graphs. Maybe we want to create an alert for any time a certain thing is spotted. Maybe we want to send an email whenever the incident count of a _certain_ object is seen a _certain_ number of times.
 
 > **Oh, the possibilities are endless!**
-
-@@ consider adding stream analytics instructions
