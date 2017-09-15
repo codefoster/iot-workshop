@@ -506,17 +506,15 @@ npm install
 
 Now it's time to go get some coffee, because that command is going to take considerable time. There's a lot going on in the raspi-io library.
 
-And now (still `ssh`'ed to the device) you can run your application using...
+And now (still `ssh`'ed to the device) you can run your application. Normally, you run a node application using something like `node .`, but on a Raspberry Pi, it's a bit tricky. You see, your code is not allowed to access the GPIO pins unless you use `sudo`. But then if you use environment variables, using sudo doesn't respect them. Additionally, if you used `nvs` to install node like I suggested, then `sudo node` doesn't work because it doesn't see the `node` command. To resolve all of this at once, just execute...
 
 ```
-node .
+sudo -E $(which node) .
 ```
 
-The `.` means "this folder". Node is smart enough to look for an `index.js` file in the current folder and run that.
+The `-E` instructs sudo to keep your environment variables. `$(which node)` finds the exact location of the `node` command and sends that. Finally, `.` means "this folder". Node is smart enough to look for an `index.js` file in the current folder and run that.
 
-If all went as planned, you should be taking pictures, cogging them, and sending them to IoT Hub.
-
-You might want to leave this `ssh` console up, because so far this program just takes a single picture when it's run and then the process exits. To take another picture, just fire `node .` again. We may very well want to do something fancier like program this to happen on an interval until we kill the process or maybe even wire a button up to the RP3 to take a picture when we press it.
+If all went as planned, your code shoudl be running, and you should se "READY". To test it, push the button and see what happens!
 
 One more note here. I hooked some timing up to this code and discovered that it takes a full 6s to take the picture. I'm not sure why it takes that long. The entire process takes close to 10s on my machine, where the vast majority of the rest of the time is spent sending the image to the cloud and analyzing it. Sending a message to IoT Hub takes very little time. The message is small and the AMQP protocol is a very efficient one.
 
