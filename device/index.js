@@ -19,13 +19,15 @@ async function run() {
         await takePicture('picture.png');
 
         log(`analyzing image...`);
-        let tags = await analyzeImage('picture.png');
+        let analyzeResult = await analyzeImage('picture.png');
 
         await deleteImage('picture.png');
 
         log('sending message to iot hub...');
-        await sendMessage(hubClient, JSON.stringify(tags));
-        log(`Sent ${JSON.stringify(tags)} to your IoT Hub`);
+        await sendMessage(hubClient, JSON.stringify(analyzeResult.tags));
+        // log(JSON.stringify(analyzeResult, null, 2));
+        log(`Looks like ${analyzeResult.description.captions[0].text}.`)
+        // log(`Sent ${JSON.stringify(analyzeResult.tags)} to your IoT Hub`);
 
         led.stop().off();
         log('READY');
@@ -72,8 +74,7 @@ function takePicture() {
 function analyzeImage(image) {
     let oxford = require('project-oxford');
     let cogClient = new oxford.Client(process.env.COGNITIVE_SERVICES_KEY);
-    return cogClient.vision.analyzeImage({ path: image, Tags: true })
-        .then(result => result.tags);
+    return cogClient.vision.analyzeImage({ path: image, Tags: true, Description: true });
 }
 
 function deleteImage(image) {
@@ -98,5 +99,6 @@ function sendMessage(client, content) {
 }
 
 function log(msg) {
+    console.log('');
     console.log(msg);
 }
