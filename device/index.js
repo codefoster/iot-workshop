@@ -1,68 +1,106 @@
-let five = require('johnny-five');
-let raspi = require('raspi-io');
-let Camera = require('camerapi');
-let oxford = require('project-oxford');
-let fs = require('fs');
-let device = require('azure-iot-device');
-let deviceAmqp = require('azure-iot-device-amqp');
+run();
 
-let cogClient = new oxford.Client(process.env.COGNITIVE_SERVICES_KEY);
-let connectionString = process.env.DEVICE_CONN_STRING;
-let hubClient = deviceAmqp.clientFromConnectionString(connectionString);
-
-//establishing connection to gpio
-log('establishing connection to gpio...');
-let board = new five.Board({ io: new raspi() });
-board.on('ready', () => {
+async function run() {
+    log('establishing connection to gpio...');
+    let five = await readyBoard();
     let led = new five.Led('GPIO26');
     let button = new five.Button('GPIO20');
-    led.stop().off();
-
-    //open connection to iot hub
+    
     log('connecting to iot hub...');
-    hubClient.open(err => {
-        if (err)
-            log(err.message)
-        else {
-            log('READY');
-            led.stop().off();
+    let hubClient = await connectToIoTHub();
 
-            let cam = new Camera();
-            cam.baseFolder('.');
-            button.on('press', () => {
-                led.blink(500);
-                log('taking a picture...');
-                cam.takePicture('picture.png', (file, error) => {
-                    if (error) log(error);
-                    else {
-                        //analyzing image
-                        log('analyzing image...');
-                        cogClient.vision.analyzeImage({ path: 'picture.png', Tags: true })
-                            .then(result => {
-                                fs.unlinkSync('picture.png'); //delete the picture
+    led.stop().off();
+    log('READY');
 
-                                //sending message to iot hub
-                                log('sending message to iot hub...');
-                                let message = new device.Message(JSON.stringify({ deviceId: 'device1', tags: ['foo', 'baz', 'bar'] }));
-                                hubClient.sendEvent(message, (err, res) => {
-                                    if (err) log(err.message);
-                                    else {
-                                        log(`Sent ${JSON.stringify(result.tags)} to your IoT Hub`);
-                                        log('READY');
-                                    }
-                                    led.stop().off();
-                                });
-                            })
-                            .catch(err => {
-                                log('error analyzing image... ' + err.message);
-                                led.stop().off();
-                            });
-                    }
-                });
-            })
-        }
+    button.on('press', async () => {
+        led.blink(500);
+
+        log('taking a picture...');
+        await takePicture('picture.png');
+
+        log(`analyzing image...`);
+        let tags = await analyzeImage('picture.png');
+        
+        await deleteImage('picture.png');
+
+        log('sending message to iot hub...');
+        await sendMessage(hubClient, JSON.stringify(tags));
+        log(`Sent ${JSON.stringify(tags)} to your IoT Hub`);
+        
+        led.stop().off();
+        log('READY');
     })
-})
+}
+
+function readyBoard() {
+    return new Promise((resolve, reject) => {
+        let five = require('johnny-five');
+        let raspi = require('raspi-io');
+
+        let board = new five.Board({ io: new raspi() });
+        board.on('ready', () => {
+            resolve(five);
+        });
+    });
+}
+
+function connectToIoTHub() {
+    return new Promise((resolve, reject) => {
+        let deviceAmqp = require('azure-iot-device-amqp');
+        let connectionString = process.env.DEVICE_CONN_STRING;
+        let client = deviceAmqp.clientFromConnectionString(connectionString);
+
+        client.open(err => {
+            if (err) reject(err);
+            resolve(client);
+        });
+    })
+}
+
+function takePicture() {
+    return new Promise((resolve, reject) => {
+        let Camera = require('camerapi');
+
+        let cam = new Camera();
+        cam.baseFolder('.');
+        cam.takePicture('picture.png', (file, error) => {
+            if (error) reject(error);
+            resolve(file);
+        });
+    });
+}
+
+function analyzeImage(image) {
+    return new Promise((resolve, reject) => {
+        let oxford = require('project-oxford');
+        let cogClient = new oxford.Client(process.env.COGNITIVE_SERVICES_KEY);
+        cogClient.vision.analyzeImage({ path: image, Tags: true })
+            .then(result => resolve(result.tags))
+            .catch(err => reject(err));
+    });
+}
+
+function deleteImage(image) {
+    return new Promise((resolve, reject) => {
+        let fs = require('fs');
+        fs.unlink(image, (err) => {
+            if(err) reject(err);
+            resolve();
+        });
+    }); 
+}
+
+function sendMessage(client, content) {
+    return new Promise((resolve, reject) => {
+        let device = require('azure-iot-device');
+        let message = new device.Message(content);
+        client.sendEvent(message, (err, res) => {
+            if (err) reject(err);
+            resolve(res);
+        });
+
+    });
+}
 
 function log(msg) {
     console.log(msg);
