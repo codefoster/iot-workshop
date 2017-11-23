@@ -5,7 +5,7 @@ async function run() {
     let five = await readyBoard();
     let led = new five.Led('GPIO26');
     let button = new five.Button('GPIO20');
-    
+
     log('connecting to iot hub...');
     let hubClient = await connectToIoTHub();
 
@@ -20,13 +20,13 @@ async function run() {
 
         log(`analyzing image...`);
         let tags = await analyzeImage('picture.png');
-        
+
         await deleteImage('picture.png');
 
         log('sending message to iot hub...');
         await sendMessage(hubClient, JSON.stringify(tags));
         log(`Sent ${JSON.stringify(tags)} to your IoT Hub`);
-        
+
         led.stop().off();
         log('READY');
     })
@@ -71,23 +71,20 @@ function takePicture() {
 }
 
 function analyzeImage(image) {
-    return new Promise((resolve, reject) => {
-        let oxford = require('project-oxford');
-        let cogClient = new oxford.Client(process.env.COGNITIVE_SERVICES_KEY);
-        cogClient.vision.analyzeImage({ path: image, Tags: true })
-            .then(result => resolve(result.tags))
-            .catch(err => reject(err));
-    });
+    let oxford = require('project-oxford');
+    let cogClient = new oxford.Client(process.env.COGNITIVE_SERVICES_KEY);
+    return cogClient.vision.analyzeImage({ path: image, Tags: true })
+        .then(result => result.tags);
 }
 
 function deleteImage(image) {
     return new Promise((resolve, reject) => {
         let fs = require('fs');
         fs.unlink(image, (err) => {
-            if(err) reject(err);
+            if (err) reject(err);
             resolve();
         });
-    }); 
+    });
 }
 
 function sendMessage(client, content) {
