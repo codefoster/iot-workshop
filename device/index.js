@@ -43,11 +43,12 @@ board.on('ready', () => {
 
                                 //sending message to iot hub
                                 log('sending message to iot hub...');
-                                let message = new device.Message(JSON.stringify({ deviceId: 'device1', tags: ['foo', 'baz', 'bar'] }));
+                                let tags = JSON.stringify(result.tags);
+                                let message = new device.Message(tags);
                                 hubClient.sendEvent(message, (err, res) => {
                                     if (err) log(err.message);
                                     else {
-                                        log(`Sent ${JSON.stringify(result.tags)} to your IoT Hub`);
+                                        log(`Sent ${tags} to your IoT Hub`);
                                         log('READY');
                                     }
                                     led.stop().off();
