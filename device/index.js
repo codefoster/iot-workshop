@@ -47,8 +47,7 @@ function readyBoard() {
 function connectToIoTHub() {
     return new Promise((resolve, reject) => {
         let deviceAmqp = require('azure-iot-device-amqp');
-        let connectionString = process.env.DEVICE_CONN_STRING;
-        let client = deviceAmqp.clientFromConnectionString(connectionString);
+        let client = deviceAmqp.clientFromConnectionString(process.env.DEVICE_CONN_STRING);
 
         client.open(err => {
             if (err) reject(err);
@@ -95,7 +94,6 @@ function sendMessage(client, content) {
             if (err) reject(err);
             resolve(res);
         });
-
     });
 }
 
